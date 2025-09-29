@@ -1,0 +1,15 @@
+[Rr]elease/
+[Rr]eleases/
+[Bb]uild/
+
+[Oo]bj/
+[Bb]in/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+.cache/
+
+.vscode/
+
+*.out
