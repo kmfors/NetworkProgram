@@ -32,10 +32,7 @@ typedef sock_info_t clnt_sock_info_t;
 
 //============================= TCP接口 =================================
 // 网络连接监听
-int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt);
-
-// 网络连接接收
-int tcp_accept(serv_sock_info_t* serv, clnt_sock_info_t* clnt);
+int tcp_listen_func(const char* port, serv_sock_info_t* serv, clnt_sock_info_t* clnt);
 
 // 创建服务端
 int tcp_server_handle(const char* port, serv_sock_info_t* serv, clnt_sock_info_t* clnt);

@@ -1,6 +1,4 @@
-#include "../util_tool.h"
-#include "../util_error.h"
-#include "../util_sock.h"
+#include "util_all.h"
 #include <unistd.h>
 
 /**
@@ -17,7 +15,7 @@ int main(int argc, char* argv[])
     INIT_STRUCT_FIELD(serv_sock_info_t, serv);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
 
-    int ret = tcp_server_listen(argv[1], &serv, &clnt);
+    int ret = tcp_listen_func(argv[1], &serv, &clnt);
     if (ret != 0) handleError(getMsgByCode(ret));
 
     int size = 0;

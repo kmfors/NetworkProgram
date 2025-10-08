@@ -37,7 +37,6 @@ int client_connect(const char* ip, const char* port, int sock_type, clnt_sock_in
     return 0;
 }
 
-//=========================================================================
 // tcp 监听
 int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
 {
@@ -55,6 +54,21 @@ int tcp_accept(serv_sock_info_t* serv, clnt_sock_info_t* clnt)
     // 5、接收对方连接，并保存对方的套接字与地址信息
     clnt->socket = accept(serv->socket, (struct sockaddr*)&clnt->addr, &clnt->addr_len);
     if (clnt->socket == -1)  return 1004;
+
+    return 0;
+}
+
+//=================头文件的实现函数========================================================
+// tcp的listen处理
+int tcp_listen_func(const char* port, serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
+{
+    int ret = server_bind(port, SOCK_STREAM, serv);
+    if (ret != 0)   return ret;
+
+    ret = tcp_listen(serv, clnt);
+    if (ret != 0)   return ret;
+
+    return 0;
 }
 
 // TCP 服务端流程

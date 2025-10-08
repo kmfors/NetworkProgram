@@ -1,6 +1,4 @@
-#include "../util_tool.h"
-#include "../util_error.h"
-#include "../util_sock.h"
+#include "util_all.h"
 #include <unistd.h>
 
 /**
