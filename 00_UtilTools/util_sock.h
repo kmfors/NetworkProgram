@@ -20,7 +20,7 @@
 //=========================== 结构体定义 ==================================
 typedef struct sock_info
 {
-    int socket;
+    int sock;
     socklen_t addr_len;
     struct sockaddr_in addr;
 } sock_info_t;
@@ -49,6 +49,7 @@ int udp_server_handle(const char* port, serv_sock_info_t* serv);
 // 创建客户端
 int udp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt);
 
-
+// 打印IP地址信息
+void print_addr(const sock_info_t* sock_info, const char *tag);
 
 #endif // ! _UTIL_SOCK_H_

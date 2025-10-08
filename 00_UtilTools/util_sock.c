@@ -5,15 +5,15 @@ const int g_listen_max = 5;
 // 服务端绑定
 int server_bind(const char* port, int sock_type, serv_sock_info_t* serv) {
     // 1、创建指定传输类型的套接字
-    serv->socket = socket(PF_INET, sock_type, 0);
-    if (serv->socket == -1)  return 1001;
+    serv->sock = socket(PF_INET, sock_type, 0);
+    if (serv->sock == -1)  return 1001;
 
     serv->addr.sin_family = AF_INET;
     serv->addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv->addr.sin_port = htons(atoi(port));
 
     // 3、将套接字与地址信息做绑定
-    int ret = bind(serv->socket, (struct sockaddr*)&serv->addr, sizeof(serv->addr));
+    int ret = bind(serv->sock, (struct sockaddr*)&serv->addr, sizeof(serv->addr));
     if (ret == -1)  return 1002;
     return 0;
 }
@@ -21,8 +21,8 @@ int server_bind(const char* port, int sock_type, serv_sock_info_t* serv) {
 int client_connect(const char* ip, const char* port, int sock_type, clnt_sock_info_t* clnt)
 {
     // 1、创建指定传输类型的套接字
-    clnt->socket = socket(PF_INET, sock_type, 0);
-    if (clnt->socket == -1)  return 1001;
+    clnt->sock = socket(PF_INET, sock_type, 0);
+    if (clnt->sock == -1)  return 1001;
 
     // 2、创建套接字地址结构体，赋值IP地址与端口号
     clnt->addr.sin_family = AF_INET;
@@ -30,10 +30,12 @@ int client_connect(const char* ip, const char* port, int sock_type, clnt_sock_in
     clnt->addr.sin_port = htons(atoi(port));
 
     clnt->addr_len = sizeof(clnt->addr);
-    // 3、将套接字与地址信息做连接处理
-    int ret = connect(clnt->socket, (struct sockaddr*)&clnt->addr, clnt->addr_len);
-    if (ret == -1)  return 1005;
 
+    // 3、将套接字与地址信息做连接处理（UDP不用发起连接）
+    if (sock_type == SOCK_STREAM) {
+        int ret = connect(clnt->sock, (struct sockaddr*)&clnt->addr, clnt->addr_len);
+        if (ret == -1)  return 1005;
+    }
     return 0;
 }
 
@@ -41,7 +43,7 @@ int client_connect(const char* ip, const char* port, int sock_type, clnt_sock_in
 int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
 {
     // 4、监听套接字，及监听的最大上限
-    int ret = listen(serv->socket, g_listen_max);
+    int ret = listen(serv->sock, g_listen_max);
     if (ret == -1)  return 1003;
 
     clnt->addr_len = sizeof(clnt->addr);
@@ -52,8 +54,8 @@ int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt)
 int tcp_accept(serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
 {
     // 5、接收对方连接，并保存对方的套接字与地址信息
-    clnt->socket = accept(serv->socket, (struct sockaddr*)&clnt->addr, &clnt->addr_len);
-    if (clnt->socket == -1)  return 1004;
+    clnt->sock = accept(serv->sock, (struct sockaddr*)&clnt->addr, &clnt->addr_len);
+    if (clnt->sock == -1)  return 1004;
 
     return 0;
 }
@@ -109,6 +111,19 @@ int udp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt)
     if (ret != 0)   return ret;
 
     return 0;
+}
+
+// 打印IP地址信息
+void print_addr(const sock_info_t* sock_info, const char *tag) {
+    char ip_str[INET_ADDRSTRLEN] = {0};
+    inet_ntop(AF_INET, &(sock_info->addr.sin_addr), ip_str, sizeof(ip_str));
+    unsigned short port = ntohs(sock_info->addr.sin_port);
+    
+    if (tag && tag[0] != '\0') {
+        printf("[%s] IP: %s, Port: %d\n", tag, ip_str, port);
+    } else {
+        printf("IP: %s, Port: %d\n", ip_str, port);
+    }
 }
 
 /**

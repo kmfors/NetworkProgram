@@ -38,20 +38,20 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
 
-        wsize = write(clnt.socket, buf, strlen(buf));
+        wsize = write(clnt.sock, buf, strlen(buf));
         memset(buf, 0, sizeof(buf));
 
         ssize_t rsize = 0;
         while (total_rsize < wsize) { // 优化点！
-            //rsize = read(clnt.socket, buf, 2); // 2个字节的捞取
-            rsize = read(clnt.socket, &buf[total_rsize], BUF_SIZE - 1); 
+            //rsize = read(clnt.sock, buf, 2); // 2个字节的捞取
+            rsize = read(clnt.sock, &buf[total_rsize], BUF_SIZE - 1); 
             if (rsize == -1)  handleError(getMsgByCode(1006));
             total_rsize += rsize; 
         }
         buf[total_rsize] = 0; // 字符串以 \0 结尾
         printf("buf from server: %s", buf);
     }
-    close(clnt.socket);
+    close(clnt.sock);
     return 0;
 }
 

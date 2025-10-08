@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
         
-        write(clnt.socket, buf, strlen(buf));
-        size = read(clnt.socket, buf, BUF_SIZE - 1);
-        //size = read(clnt.socket, buf, sizeof(buf) - 1);
+        write(clnt.sock, buf, strlen(buf));
+        size = read(clnt.sock, buf, BUF_SIZE - 1);
+        //size = read(clnt.sock, buf, sizeof(buf) - 1);
 
         buf[size] = 0; // 字符串以 \0 结尾
         printf("msg from server: %s", buf);
     }
-    close(clnt.socket);
+    close(clnt.sock);
     return 0;
 }
 

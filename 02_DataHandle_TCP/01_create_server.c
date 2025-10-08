@@ -15,9 +15,9 @@ int main(int argc, char* argv[])
 
     char msg[] = "hello,world!";
     // 应该向客户端连接套接字写入
-    write(clnt.socket, msg, sizeof(msg));
+    write(clnt.sock, msg, sizeof(msg));
 
-    close(clnt.socket);
-    close(serv.socket);
+    close(clnt.sock);
+    close(serv.sock);
     return 0;
 }

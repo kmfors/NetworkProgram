@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
     int ret = inet_aton(addr, &addr_inet.sin_addr);
     if (ret == 0) {
-        printf("COnversion error");
+        printf("Conversion error");
     } else {
         printf("Network ordered integer addr: %#x \n",
             addr_inet.sin_addr.s_addr);

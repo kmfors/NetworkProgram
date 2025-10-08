@@ -21,15 +21,15 @@ int main(int argc, char* argv[])
     int size = 0;
     char buf[BUF_SIZE];
     for (int i = 0; i < 50; i++) {
-        clnt.socket = accept(serv.socket, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
-        if (clnt.socket == -1)  handleError(getMsgByCode(1004));
+        clnt.sock = accept(serv.sock, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
+        if (clnt.sock == -1)  handleError(getMsgByCode(1004));
         
         printf("Connected client %d \n", i + 1);
-        while ((size = read(clnt.socket, buf, BUF_SIZE)) != 0) 
-            write(clnt.socket, buf, size);
+        while ((size = read(clnt.sock, buf, BUF_SIZE)) != 0) 
+            write(clnt.sock, buf, size);
     }
 
-    close(clnt.socket);
-    close(serv.socket);
+    close(clnt.sock);
+    close(serv.sock);
     return 0;
 }
