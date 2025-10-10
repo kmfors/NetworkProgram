@@ -113,18 +113,7 @@ int udp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt)
     return 0;
 }
 
-// 打印IP地址信息
-void print_addr(const sock_info_t* sock_info, const char *tag) {
-    char ip_str[INET_ADDRSTRLEN] = {0};
-    inet_ntop(AF_INET, &(sock_info->addr.sin_addr), ip_str, sizeof(ip_str));
-    unsigned short port = ntohs(sock_info->addr.sin_port);
-    
-    if (tag && tag[0] != '\0') {
-        printf("[%s] IP: %s, Port: %d\n", tag, ip_str, port);
-    } else {
-        printf("IP: %s, Port: %d\n", ip_str, port);
-    }
-}
+
 
 /**
  * 创建 tcp 类型套接字的 socket 函数参数：
