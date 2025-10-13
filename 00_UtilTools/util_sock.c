@@ -3,47 +3,48 @@
 const int g_listen_max = 5;
 
 // 服务端绑定
-int server_bind(const char* port, int sock_type, serv_sock_info_t* serv) {
+int server_bind(const char* port, int sock_type, serv_sock_info_t* net) {
     // 1、创建指定传输类型的套接字
-    serv->sock = socket(PF_INET, sock_type, 0);
-    if (serv->sock == -1)  return 1001;
+    net->sock = socket(PF_INET, sock_type, 0);
+    if (net->sock == -1)  return 1001;
 
-    serv->addr.sin_family = AF_INET;
-    serv->addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv->addr.sin_port = htons(atoi(port));
+    // 2、创建套接字地址结构体，赋值IP地址与端口号
+    net->addr.sin_family = AF_INET;
+    net->addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    net->addr.sin_port = htons(atoi(port));
 
     // 3、将套接字与地址信息做绑定
-    int ret = bind(serv->sock, (struct sockaddr*)&serv->addr, sizeof(serv->addr));
+    int ret = bind(net->sock, (struct sockaddr*)&net->addr, sizeof(net->addr));
     if (ret == -1)  return 1002;
     return 0;
 }
 // 客户端连接
-int client_connect(const char* ip, const char* port, int sock_type, clnt_sock_info_t* clnt)
+int client_connect(const char* ip, const char* port, int sock_type, serv_sock_info_t* net)
 {
     // 1、创建指定传输类型的套接字
-    clnt->sock = socket(PF_INET, sock_type, 0);
-    if (clnt->sock == -1)  return 1001;
+    net->sock = socket(PF_INET, sock_type, 0);
+    if (net->sock == -1)  return 1001;
 
     // 2、创建套接字地址结构体，赋值IP地址与端口号
-    clnt->addr.sin_family = AF_INET;
-    clnt->addr.sin_addr.s_addr = inet_addr(ip);
-    clnt->addr.sin_port = htons(atoi(port));
+    net->addr.sin_family = AF_INET;
+    net->addr.sin_addr.s_addr = inet_addr(ip);
+    net->addr.sin_port = htons(atoi(port));
 
-    clnt->addr_len = sizeof(clnt->addr);
+    net->addr_len = sizeof(net->addr);
 
     // 3、将套接字与地址信息做连接处理（UDP不用发起连接）
     if (sock_type == SOCK_STREAM) {
-        int ret = connect(clnt->sock, (struct sockaddr*)&clnt->addr, clnt->addr_len);
+        int ret = connect(net->sock, (struct sockaddr*)&net->addr, net->addr_len);
         if (ret == -1)  return 1005;
     }
     return 0;
 }
 
 // tcp 监听
-int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
+int tcp_listen(serv_sock_info_t* net, clnt_sock_info_t* clnt) 
 {
     // 4、监听套接字，及监听的最大上限
-    int ret = listen(serv->sock, g_listen_max);
+    int ret = listen(net->sock, g_listen_max);
     if (ret == -1)  return 1003;
 
     clnt->addr_len = sizeof(clnt->addr);
@@ -51,10 +52,10 @@ int tcp_listen(serv_sock_info_t* serv, clnt_sock_info_t* clnt)
 }
 
 // tcp 接收连接
-int tcp_accept(serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
+int tcp_accept(serv_sock_info_t* net, clnt_sock_info_t* clnt) 
 {
     // 5、接收对方连接，并保存对方的套接字与地址信息
-    clnt->sock = accept(serv->sock, (struct sockaddr*)&clnt->addr, &clnt->addr_len);
+    clnt->sock = accept(net->sock, (struct sockaddr*)&clnt->addr, &clnt->addr_len);
     if (clnt->sock == -1)  return 1004;
 
     return 0;
@@ -62,36 +63,36 @@ int tcp_accept(serv_sock_info_t* serv, clnt_sock_info_t* clnt)
 
 //=================头文件的实现函数========================================================
 // tcp的listen处理
-int tcp_listen_func(const char* port, serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
+int tcp_listen_func(const char* port, serv_sock_info_t* net, clnt_sock_info_t* clnt) 
 {
-    int ret = server_bind(port, SOCK_STREAM, serv);
+    int ret = server_bind(port, SOCK_STREAM, net);
     if (ret != 0)   return ret;
 
-    ret = tcp_listen(serv, clnt);
+    ret = tcp_listen(net, clnt);
     if (ret != 0)   return ret;
 
     return 0;
 }
 
 // TCP 服务端流程
-int tcp_server_handle(const char* port, serv_sock_info_t* serv, clnt_sock_info_t* clnt) 
+int tcp_server_handle(const char* port, serv_sock_info_t* net, clnt_sock_info_t* clnt) 
 {
-    int ret = server_bind(port, SOCK_STREAM, serv);
+    int ret = server_bind(port, SOCK_STREAM, net);
     if (ret != 0)   return ret;
 
-    ret = tcp_listen(serv, clnt);
+    ret = tcp_listen(net, clnt);
     if (ret != 0)   return ret;
 
-    ret = tcp_accept(serv, clnt);
+    ret = tcp_accept(net, clnt);
     if (ret != 0)   return ret;
     
     return 0;
 }
 
 // tcp 客户端流程
-int tcp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt)
+int tcp_client_handle(const char* ip, const char* port, serv_sock_info_t* net)
 {
-    int ret = client_connect(ip, port, SOCK_STREAM, clnt);
+    int ret = client_connect(ip, port, SOCK_STREAM, net);
     if (ret != 0)   return ret;
 
     return 0;
@@ -99,15 +100,15 @@ int tcp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt)
 
 //=========================================================================
 // UDP 服务端流程
-int udp_server_handle(const char* port, serv_sock_info_t* serv) {
-    int ret = server_bind(port, SOCK_DGRAM, serv);
+int udp_server_handle(const char* port, serv_sock_info_t* net) {
+    int ret = server_bind(port, SOCK_DGRAM, net);
     if (ret != 0)   return ret;
     return 0;
 }
 // udp 客户端流程
-int udp_client_handle(const char* ip, const char* port, clnt_sock_info_t* clnt)
+int udp_client_handle(const char* ip, const char* port, serv_sock_info_t* net)
 {
-    int ret = client_connect(ip, port, SOCK_DGRAM, clnt);
+    int ret = client_connect(ip, port, SOCK_DGRAM, net);
     if (ret != 0)   return ret;
 
     return 0;

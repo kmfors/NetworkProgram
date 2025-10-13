@@ -10,7 +10,7 @@ BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
 SERVER_BASE := 01_uecho_server
-CLIENT_BASE := 02_uecho_client
+CLIENT_BASE := 05_uecho_con_client
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c

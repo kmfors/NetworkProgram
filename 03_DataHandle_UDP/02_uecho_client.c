@@ -13,6 +13,7 @@
  * 注意：
  *  1. 由于UDP客户端的常见设置是不启用connect函数的，所以无论是sendto还是recvfrom都需要指定地址
  *  2. 若UDP客户端启用connect函数，则可以使用 send 与 read 函数（不需要指定地址）
+ *  3. 调用 sendto 函数时，自动分配IP和端口号给套接字
 */
 
 #define BUF_SIZE 1024
@@ -21,10 +22,10 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
 
+    INIT_STRUCT_FIELD(serv_sock_info_t, net);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
-    INIT_STRUCT_FIELD(clnt_sock_info_t, from);
     
-    int ret = udp_client_handle(argv[1], argv[2], &clnt);
+    int ret = udp_client_handle(argv[1], argv[2], &net);
     if (ret != 0)   handleError(getMsgByCode(ret));
 
     ssize_t rsize = 0;
@@ -35,14 +36,14 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
         
-        sendto(clnt.sock, buf, strlen(buf), 0, (struct sockaddr*)&clnt.addr, clnt.addr_len);
-        from.addr_len = sizeof(from.addr);
-        rsize = recvfrom(clnt.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&from.addr,
-                         &from.addr_len);
+        sendto(net.sock, buf, strlen(buf), 0, (struct sockaddr*)&net.addr, net.addr_len);
+        clnt.addr_len = sizeof(clnt.addr);
+        rsize = recvfrom(net.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr,
+                         &clnt.addr_len);
 
         buf[rsize] = 0;
-        printf("Message from server: %s", buf);
+        printf("Message clnt server: %s", buf);
     }
-    close(clnt.sock);
+    close(net.sock);
     return 0;
 }
