@@ -17,20 +17,20 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_SERVER(argc);
 
-    INIT_STRUCT_FIELD(serv_sock_info_t, net);
+    INIT_STRUCT_FIELD(serv_sock_info_t, serv);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
 
-    int ret = udp_server_handle(argv[1], &net);
+    int ret = udp_server_handle(argv[1], &serv);
     if (ret != 0)   handleError(getMsgByCode(ret));
 
     char buf[BUF_SIZE] = {0};
     for (int i = 0; i < 3; i++) {
         sleep(5);
         clnt.addr_len = sizeof(clnt.addr);
-        recvfrom(net.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
+        recvfrom(serv.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
 
         printf("Message %d: %s \n", i+1, buf);
     }
-    close(net.sock);
+    close(serv.sock);
     return 0;
 } 

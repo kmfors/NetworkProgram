@@ -22,10 +22,10 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
 
-    INIT_STRUCT_FIELD(serv_sock_info_t, net);
+    INIT_STRUCT_FIELD(serv_sock_info_t, serv);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
     
-    int ret = udp_client_handle(argv[1], argv[2], &net);
+    int ret = udp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0)   handleError(getMsgByCode(ret));
 
     ssize_t rsize = 0;
@@ -36,14 +36,14 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
         
-        sendto(net.sock, buf, strlen(buf), 0, (struct sockaddr*)&net.addr, net.addr_len);
+        sendto(serv.sock, buf, strlen(buf), 0, (struct sockaddr*)&serv.addr, serv.addr_len);
         clnt.addr_len = sizeof(clnt.addr);
-        rsize = recvfrom(net.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr,
+        rsize = recvfrom(serv.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr,
                          &clnt.addr_len);
 
         buf[rsize] = 0;
         printf("Message clnt server: %s", buf);
     }
-    close(net.sock);
+    close(serv.sock);
     return 0;
 }

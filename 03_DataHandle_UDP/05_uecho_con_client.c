@@ -22,13 +22,13 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
 
-    INIT_STRUCT_FIELD(serv_sock_info_t, net);
+    INIT_STRUCT_FIELD(serv_sock_info_t, serv);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
 
-    int ret = udp_client_handle(argv[1], argv[2], &net);
+    int ret = udp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0)   handleError(getMsgByCode(ret));
 
-    connect(net.sock, (struct sockaddr*)&net.addr, sizeof(net.addr));
+    connect(serv.sock, (struct sockaddr*)&serv.addr, sizeof(serv.addr));
 
     ssize_t rsize = 0;
     char buf[BUF_SIZE] = {0};
@@ -37,17 +37,17 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }  
 #if 0
-        sendto(net.sock, buf, strlen(buf), 0, (struct sockaddr*)&net.addr, net.addr_len);
+        sendto(serv.sock, buf, strlen(buf), 0, (struct sockaddr*)&serv.addr, serv.addr_len);
 
         clnt.addr_len = sizeof(clnt.addr);
-        recvfrom(net.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr, &clnt.addr_len)
+        recvfrom(serv.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr, &clnt.addr_len)
 #else
-        write(net.sock, buf, strlen(buf));
-        rsize = read(net.sock, buf, sizeof(buf)-1);
+        write(serv.sock, buf, strlen(buf));
+        rsize = read(serv.sock, buf, sizeof(buf)-1);
 #endif 
         buf[rsize] = 0;
         printf("Message clnt server: %s", buf);
     }
-    close(net.sock);
+    close(serv.sock);
     return 0;
 }

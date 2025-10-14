@@ -23,9 +23,9 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
     
-    INIT_STRUCT_FIELD(clnt_sock_info_t, net);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, serv);
 
-    int ret = tcp_client_handle(argv[1], argv[2], &net);
+    int ret = tcp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0) {
         handleError(getMsgByCode(ret));
     }
@@ -38,20 +38,20 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
 
-        wsize = write(net.sock, buf, strlen(buf));
+        wsize = write(serv.sock, buf, strlen(buf));
         memset(buf, 0, sizeof(buf));
 
         ssize_t rsize = 0;
         while (total_rsize < wsize) { // 优化点！
-            //rsize = read(net.sock, buf, 2); // 2个字节的捞取
-            rsize = read(net.sock, &buf[total_rsize], BUF_SIZE - 1); 
+            //rsize = read(serv.sock, buf, 2); // 2个字节的捞取
+            rsize = read(serv.sock, &buf[total_rsize], BUF_SIZE - 1); 
             if (rsize == -1)  handleError(getMsgByCode(1006));
             total_rsize += rsize; 
         }
         buf[total_rsize] = 0; // 字符串以 \0 结尾
         printf("buf from server: %s", buf);
     }
-    close(net.sock);
+    close(serv.sock);
     return 0;
 }
 

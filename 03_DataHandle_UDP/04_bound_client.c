@@ -14,9 +14,9 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
 
-    INIT_STRUCT_FIELD(clnt_sock_info_t, net);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, serv);
 
-    int ret = udp_client_handle(argv[1], argv[2], &net);
+    int ret = udp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0)   handleError(getMsgByCode(ret));
 
     // 未明确数组长度的，用sizeof，发送结尾的'\0'
@@ -25,10 +25,10 @@ int main(int argc, char* argv[])
     char msg3[] = "Nice to meet you!";
 
     // 验证 UDP 的数据边界
-    sendto(net.sock, msg1, sizeof(msg1), 0, (struct sockaddr*)&net.addr, sizeof(net.addr));
-    sendto(net.sock, msg2, sizeof(msg2), 0, (struct sockaddr*)&net.addr, sizeof(net.addr));
-    sendto(net.sock, msg3, sizeof(msg3), 0, (struct sockaddr*)&net.addr, sizeof(net.addr));
+    sendto(serv.sock, msg1, sizeof(msg1), 0, (struct sockaddr*)&serv.addr, sizeof(serv.addr));
+    sendto(serv.sock, msg2, sizeof(msg2), 0, (struct sockaddr*)&serv.addr, sizeof(serv.addr));
+    sendto(serv.sock, msg3, sizeof(msg3), 0, (struct sockaddr*)&serv.addr, sizeof(serv.addr));
 
-    close(net.sock);
+    close(serv.sock);
     return 0;
 }

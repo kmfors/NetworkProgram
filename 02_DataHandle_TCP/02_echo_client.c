@@ -29,9 +29,9 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
     
-    INIT_STRUCT_FIELD(clnt_sock_info_t, net);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, serv);
 
-    int ret = tcp_client_handle(argv[1], argv[2], &net);
+    int ret = tcp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0) {
         handleError(getMsgByCode(ret));
     }
@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp(buf, "Q\n"))  { break; }
         
-        write(net.sock, buf, strlen(buf));
-        size = read(net.sock, buf, BUF_SIZE - 1);
-        //size = read(net.sock, buf, sizeof(buf) - 1);
+        write(serv.sock, buf, strlen(buf));
+        size = read(serv.sock, buf, BUF_SIZE - 1);
+        //size = read(serv.sock, buf, sizeof(buf) - 1);
 
         buf[size] = 0; // 字符串以 \0 结尾
         printf("msg from server: %s", buf);
     }
-    close(net.sock);
+    close(serv.sock);
     return 0;
 }
 
