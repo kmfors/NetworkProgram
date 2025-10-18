@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_CLIENT(argc);
     
-    INIT_STRUCT_FIELD(serv_sock_info_t, serv);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, serv);
 
     int ret = tcp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0) {

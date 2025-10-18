@@ -1,28 +1,23 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "util_all.h"
 #include <unistd.h>
-#include <string.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 
-#define InitField(Type, field) Type field;memset(&field, 0, sizeof(field))
-
-void error_handling(char* msg) {
-    fputs(msg, stderr);
-    fputc('\n', stderr);
-    exit(1);
-}
+/**
+ * 通过 IP 地址获取域名
+ * struct hostent* gethostbyaddr(const char* addr, socklen_t len, int family);
+ * 
+ */
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
         printf("Usage: %s <IP>\n", argv[0]);
         exit(1);
     }
-    InitField(struct sockaddr_in, addr);
+    INIT_STRUCT_FIELD(struct sockaddr_in, addr);
     addr.sin_addr.s_addr = inet_addr(argv[1]);
     
     struct hostent* host = gethostbyaddr((char*)&addr.sin_addr, 4, AF_INET);
-    if (!host)  error_handling("gethost... error");
+    if (!host)  handleError(getMsgByCode(ERR_GET_HOST_BY_ADDR));
 
     printf("Official name: %s \n", host->h_name);
 

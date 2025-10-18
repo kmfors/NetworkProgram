@@ -4,13 +4,13 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 
 # 目录设置
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 03_DataHandle_UDP
+SRC_DIR := 06_sockopt
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
-SERVER_BASE := 01_uecho_server
-CLIENT_BASE := 05_uecho_con_client
+SERVER_BASE := 03_reset_addr_server
+CLIENT_BASE := 04_nagle_algo
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c

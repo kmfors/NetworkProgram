@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     ASSERT_ARGC_CLIENT(argc);
 
     INIT_STRUCT_FIELD(serv_sock_info_t, serv);
-    INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, from);
 
     int ret = udp_client_handle(argv[1], argv[2], &serv);
     if (ret != 0)   handleError(getMsgByCode(ret));
@@ -39,14 +39,14 @@ int main(int argc, char* argv[])
 #if 0
         sendto(serv.sock, buf, strlen(buf), 0, (struct sockaddr*)&serv.addr, serv.addr_len);
 
-        clnt.addr_len = sizeof(clnt.addr);
-        recvfrom(serv.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&clnt.addr, &clnt.addr_len)
+        from.addr_len = sizeof(from.addr);
+        recvfrom(serv.sock, buf, BUF_SIZE, 0, (struct sockaddr*)&from.addr, &from.addr_len)
 #else
         write(serv.sock, buf, strlen(buf));
         rsize = read(serv.sock, buf, sizeof(buf)-1);
 #endif 
         buf[rsize] = 0;
-        printf("Message clnt server: %s", buf);
+        printf("Message from server: %s", buf);
     }
     close(serv.sock);
     return 0;

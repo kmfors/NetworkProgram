@@ -21,10 +21,11 @@ int main(int argc, char* argv[]) {
     ASSERT_ARGC_SERVER(argc);
 
     INIT_STRUCT_FIELD(serv_sock_info_t, serv);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
+
     int ret = udp_server_handle(argv[1], &serv);
     if (ret != 0)  handleError(getMsgByCode(ret));
-
-    INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
+  
     ssize_t str_len = 0;
     char buf[BUF_SIZE] = {0};
     while(1) {
