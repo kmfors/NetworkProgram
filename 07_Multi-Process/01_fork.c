@@ -8,9 +8,11 @@ int main(int argc, char* argv[]) {
     gval++, lval+=5;
 
     pid_t pid = fork();
-    if (pid == 0) { // Child Process
+    if (pid == 0) { 
+        // 子进程
         gval += 2, lval += 2;
-    } else { // if Parent Process
+    } else { 
+        // 父进程
         gval -= 2, lval -= 2;
     }
 
