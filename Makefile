@@ -4,13 +4,13 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 
 # 目录设置
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 06_sockopt
+SRC_DIR := 07_Multi-Process
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
-SERVER_BASE := 03_reuse_addr_server
-CLIENT_BASE := 04_nagle_algo
+SERVER_BASE := 08_echo_mpserv
+CLIENT_BASE := 08_echo_mpclnt
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c

@@ -1,88 +1,58 @@
-/* 基于多进程的回声服务器端 */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "util_all.h"
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
 
-#define BUF_SIZE 1024
-#define InitField(Type, field) Type field;memset(&field, 0, sizeof(field))
 
-void error_handling(char* msg) {
-    fputs(msg, stderr);
-    fputc('\n', stderr);
-    exit(1);
-}
-
+#define BUF_SIZE 30
 void read_childproc(int sig) {
     int status = 0;
     pid_t id = waitpid(-1, &status, WNOHANG);
     if (WIFEXITED(status)) {
-        printf("Removed proc id: %d \n", id);
+        printf("Remove proc id: %d, it's return:%d \n", id, WEXITSTATUS(status));
     }
 }
 
 int main(int argc, char* argv[]) 
 {
-    if (argc != 2) {
-        printf("Usage: %s <port>\n", argv[0]);
-        exit(1);
-    }
-    struct sigaction act;
+    ASSERT_ARGC_SERVER(argc);
+    
+    INIT_STRUCT_FIELD(struct sigaction, act)
+    act.sa_flags = 0;
     act.sa_handler = read_childproc;
     sigemptyset(&act.sa_mask);
-    act.sa_flags = 0;
+    
     int state = sigaction(SIGCHLD, &act, 0);
 
-    // socket 前两个参数即可确定，可填 0 省略第三个参数
-    int serv_sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (serv_sock == -1)  error_handling("socket() error");
+    INIT_STRUCT_FIELD(serv_sock_info_t, serv);
+    INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
 
-    InitField(struct sockaddr_in, serv_addr);
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(atoi(argv[1]));
-
-    int ret = bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-    if (ret == -1)  error_handling("bind() error");
-
-    ret = listen(serv_sock, 5);
-    if (ret == -1)  error_handling("listen() error");
+    int ret = tcp_listen_func(argv[1], &serv, &clnt);
+    if (ret != 0) handleError(getMsgByCode(ret));
 
     pid_t pid;
-    char msg[BUF_SIZE];
-    int clnt_sock = 0, msg_len = 0;
-    InitField(struct sockaddr_in, clnt_addr);
-    socklen_t clnt_addr_sz = sizeof(clnt_addr);
+    char buf[BUF_SIZE];
+    ssize_t str_len = 0;
 
     while(1) {
-        clnt_addr_sz = sizeof(clnt_addr);
-        clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_sz);
-        if (clnt_sock == -1)  continue;
+        clnt.sock = accept(serv.sock, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
+        if (clnt.sock == -1)  continue;
 
         puts("new client connected...");
         pid = fork();
-        if (pid == -1)  {
-            close(clnt_sock);
-            continue;
-        }
+        if (pid == -1)  { close(clnt.sock); continue;}
+        if (pid != 0) { close(clnt.sock); continue; } // 父进程不需要做读写，关闭并交由子进程来做
 
-        if (pid == 0) {
-            close(serv_sock); // 子进程不需要拷贝而来的serv_sock,关闭
-            while((msg_len = read(clnt_sock, msg, BUF_SIZE)) != 0)
-                write(clnt_sock, msg, msg_len);
-            close(clnt_sock);
+        // 子进程运行区域
+        close(serv.sock); // 子进程不需要拷贝而来的serv_sock,关闭
+        while((str_len = read(clnt.sock, buf, BUF_SIZE)) != 0) {
+            write(clnt.sock, buf, str_len);
+            close(clnt.sock);
             puts("client disconnected...");
             return 0;
-        } else {
-            close(clnt_sock); // 父进程不需要做读写，关闭并交由子进程来做
-        }
+        } 
     }
-    close(serv_sock);
+    close(serv.sock);
     return 0;
 }
 
