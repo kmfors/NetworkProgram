@@ -1,8 +1,14 @@
+#define _POSIX_C_SOURCE 200809L // 含 C11 特性
 #include "util_all.h"
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
 
+/**
+ * 注意通过 fork 函数拷贝的子进程也会一同将文件描述符一起拷贝，因此
+ * 父进程不需要做读写，需要关闭客户端套接字
+ * 子进程不需要做监听，需要关闭服务端套接字
+ */
 
 #define BUF_SIZE 30
 void read_childproc(int sig) {
@@ -17,7 +23,7 @@ int main(int argc, char* argv[])
 {
     ASSERT_ARGC_SERVER(argc);
     
-    INIT_STRUCT_FIELD(struct sigaction, act)
+    INIT_STRUCT_FIELD(struct sigaction, act);
     act.sa_flags = 0;
     act.sa_handler = read_childproc;
     sigemptyset(&act.sa_mask);
