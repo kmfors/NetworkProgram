@@ -10,7 +10,7 @@ void write_routine(int sock, char* buf) {
         fgets(buf, BUF_SIZE, stdin);
         if(!strcmp(buf, "q\n") || !strcmp("buf", "Q\n"))
         {
-            shutdown(sock, SHUT_WR);
+            shutdown(sock, SHUT_WR); return;
         }
         write(sock, buf, strlen(buf));
     }

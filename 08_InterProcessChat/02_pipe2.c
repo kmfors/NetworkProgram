@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
+/**
+ * 通过管道进行进程间双向通信
+ * 
+ *  
+*/
+
 #define BUF_SIZE 30
 
 int main(int argc, char* argv[]) {
@@ -13,7 +19,7 @@ int main(int argc, char* argv[]) {
     pid_t pid = fork();
     if (pid == 0) {
         write(fds[1], str1, sizeof(str1));
-        // sleep(2); // 注释看效果
+        sleep(2); // 注释看效果
         read(fds[0], buf, BUF_SIZE);
         printf("Child proc output: %s \n", buf);
     } else {
