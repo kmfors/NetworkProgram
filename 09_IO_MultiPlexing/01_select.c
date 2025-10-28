@@ -4,6 +4,11 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
+/**
+ * select 函数时最具有代表性的实现复用服务器端的方法
+ *  
+*/
+
 #define BUF_SIZE 30
 
 #define InitField(Type, field) Type field;memset(&field, 0, sizeof(field));
