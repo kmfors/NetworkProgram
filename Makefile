@@ -4,13 +4,13 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 
 # 目录设置
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 08_InterProcessChat
+SRC_DIR := 09_IO_MultiPlexing
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
-SERVER_BASE := 04_echo_storeserv
-CLIENT_BASE := 05_echo_mpclnt
+SERVER_BASE := 02_echo_selectserv
+CLIENT_BASE := 02_echo_client
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c
