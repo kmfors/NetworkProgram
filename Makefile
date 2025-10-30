@@ -4,13 +4,13 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 
 # 目录设置
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 10_IO_Functions
+SRC_DIR := 11_Cast
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
-SERVER_BASE := 02_peek_recv_serv
-CLIENT_BASE := 02_peek_send_clnt
+SERVER_BASE := 03_news_receiver_brd
+CLIENT_BASE := 03_news_sender_brd
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c
