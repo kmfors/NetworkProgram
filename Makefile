@@ -9,8 +9,8 @@ OBJ_DIR := obj
 BIN_DIR := bin
 
 # 文件名定义（只需要修改这里）
-SERVER_BASE := 01_recv_serv
-CLIENT_BASE := 01_send_clnt
+SERVER_BASE := 02_peek_recv_serv
+CLIENT_BASE := 02_peek_send_clnt
 
 # 源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c
