@@ -4,7 +4,7 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 
 # 目录设置
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 12_stand_IO
+SRC_DIR := 12_standard_IO
 OBJ_DIR := obj
 BIN_DIR := bin
 

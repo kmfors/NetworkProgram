@@ -1,5 +1,6 @@
 #include "util_all.h"
 #include <unistd.h>
+#include <errno.h>
 
 /**
  * 迭代回声服务器端 - 标准IO函数实现版本
@@ -22,26 +23,35 @@ int main(int argc, char* argv[])
     if (ret != 0) handleError(getMsgByCode(ret));
 
     char buf[BUF_SIZE];
-    FILE *readfp, *writefp;
+    FILE *iofp;
+    int client_count = 0;
 
-    for (int i = 0; i < 50; i++) {
+    while (1) {
+        clnt.addr_len = sizeof(clnt.addr);
         clnt.sock = accept(serv.sock, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
-        if (clnt.sock == -1)  handleError(getMsgByCode(1004));
-        printf("Connected client %d \n", i + 1);
-
-        readfp = fdopen(clnt.sock, "r");
-        writefp = fdopen(clnt.sock, "w");
-
-        while(!feof(readfp)) {
-            fgets(buf, BUF_SIZE, readfp);
-            fputs(buf, writefp);
-            fflush(writefp);
+        if (clnt.sock == -1) {
+            // 信号打断并返回 -1 且置 errno=EINTR
+            if (errno == EINTR) continue;
+            handleError(getMsgByCode(1004));
         }
-        fclose(readfp);
-        fclose(writefp);
+        printf("Connected client %d \n", ++client_count);
+
+        iofp = fdopen(clnt.sock, "r+");
+        if (iofp == NULL) {
+            close(clnt.sock);
+            clnt.sock = -1;
+            continue;
+        }
+
+        while (fgets(buf, BUF_SIZE, iofp) != NULL) {
+            if (fputs(buf, iofp) == EOF) break;
+            if (fflush(iofp) == EOF) break;
+        }
+
+        fclose(iofp); // closes underlying clnt.sock as well
+        clnt.sock = -1;
     }
 
-    close(clnt.sock);
     close(serv.sock);
     return 0;
 }
