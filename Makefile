@@ -7,25 +7,24 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 ###############################################################################
 # 2. 目录和源文件配置
 
-# 各目录路径
-UTIL_DIR := 00_UtilTools  # 工具类源文件目录
-SRC_DIR := 14_epoll       # 主程序源文件目录
-OBJ_DIR := obj            # 编译生成的中间文件目录
-BIN_DIR := bin            # 可执行文件输出目录
+UTIL_DIR := 00_UtilTools
+SRC_DIR := 15_mutil_thread
+OBJ_DIR := obj
+BIN_DIR := bin
 
 # 主程序源文件名（不含扩展名）
-SERVER_BASE := 03_echo_EPET_serv
-CLIENT_BASE := 01_echo_client
+SERVER_BASE := 05_chat_server
+CLIENT_BASE := 05_chat_client
 
 # 完整源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c
 CLIENT_SRC := $(SRC_DIR)/$(CLIENT_BASE).c
-UTIL_SRCS := $(wildcard $(UTIL_DIR)/*.c)  # 工具目录下所有.c文件
+UTIL_SRCS := $(wildcard $(UTIL_DIR)/*.c)
 
 ###############################################################################
 # 3. 编译目标配置
 
-# 编译后生成的中间文件（.o文件）
+# 编译后生成的中间文件（.o文件)
 SERVER_OBJ := $(OBJ_DIR)/$(SERVER_BASE).o
 CLIENT_OBJ := $(OBJ_DIR)/$(CLIENT_BASE).o
 UTIL_OBJS := $(patsubst $(UTIL_DIR)/%.c,$(OBJ_DIR)/util_%.o,$(UTIL_SRCS))
@@ -48,7 +47,7 @@ $(TARGET_SERV): $(SERVER_OBJ) $(UTIL_OBJS) | $(BIN_DIR)
 $(TARGET_CLNT): $(CLIENT_OBJ) $(UTIL_OBJS) | $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@
 
-# 4.3 编译主程序源代码为对象文件（%为通配符，$<为源文件，$@为目标文件）
+# 4.3 编译主程序源代码为对象文件
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -59,15 +58,13 @@ $(OBJ_DIR)/util_%.o: $(UTIL_DIR)/%.c | $(OBJ_DIR)
 ###############################################################################
 # 5. 辅助规则
 
-# 创建输出目录（|表示顺序依赖，只检查存在性，不触发重新构建）
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
-# 清理编译产物
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
 
 .PHONY: all clean
