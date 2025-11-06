@@ -8,13 +8,13 @@ CFLAGS := -g -O0 -Wall -I00_UtilTools
 # 2. 目录和源文件配置
 
 UTIL_DIR := 00_UtilTools
-SRC_DIR := 15_mutil_thread
+SRC_DIR := 16_http
 OBJ_DIR := obj
 BIN_DIR := bin
 
 # 主程序源文件名（不含扩展名）
-SERVER_BASE := 05_chat_server
-CLIENT_BASE := 05_chat_client
+SERVER_BASE := 01_web_serv
+CLIENT_BASE := 01_web_serv
 
 # 完整源文件路径
 SERVER_SRC := $(SRC_DIR)/$(SERVER_BASE).c
