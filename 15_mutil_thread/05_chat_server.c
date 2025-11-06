@@ -12,47 +12,17 @@
 #define BUF_SIZE 100
 #define MAX_CLNT 256
 
-pthread_mutex_t g_mutx;
+void send_msg(char* msg, int len);
+void* handle_clnt(void* arg);
+
 int g_clnt_cnt = 0;
-pthread_t g_thd_id = 0;
 int g_clnt_socks[MAX_CLNT] = {0};
-
-void send_msg(char* msg, int len) {
-    pthread_mutex_lock(&g_mutx);
-    for(int i = 0; i < g_clnt_cnt; i++) {
-        write(g_clnt_socks[i], msg, len);
-    }
-    pthread_mutex_unlock(&g_mutx);
-}
-
-void* handle_clnt(void* arg) {
-    int clnt_sock = *((int*)arg);
-    int str_len = 0;
-    char msg[BUF_SIZE] = {0};
-
-    while((str_len = read(clnt_sock, msg, BUF_SIZE)) != 0)
-        send_msg(msg, str_len);
-
-    pthread_mutex_lock(&g_mutx);
-    for(int i = 0; i < g_clnt_cnt; i++) {
-        if (clnt_sock == g_clnt_socks[i]) {
-            while(i++ < g_clnt_cnt - 1) {
-                g_clnt_socks[i] = g_clnt_socks[i + 1];
-            }
-            break;
-        }
-    }
-    g_clnt_cnt--;
-    pthread_mutex_unlock(&g_mutx);
-    close(clnt_sock);
-    return NULL;
-}
+pthread_mutex_t g_mutx;
 
 int main(int argc, char* argv[])
 {
     ASSERT_ARGC_SERVER(argc);
 
-    pthread_mutex_init(&g_mutx, NULL);
     INIT_STRUCT_FIELD(serv_sock_info_t, serv);
     INIT_STRUCT_FIELD(clnt_sock_info_t, clnt);
 
@@ -60,6 +30,8 @@ int main(int argc, char* argv[])
     if(ret != 0)  handleError(getMsgByCode(ret));
 
     pthread_t t_id;
+    pthread_mutex_init(&g_mutx, NULL);
+
     while(1) {
         clnt.addr_len = sizeof(clnt.addr);
         clnt.sock = accept(serv.sock, (struct sockaddr*)&clnt.addr, &clnt.addr_len);
@@ -74,7 +46,35 @@ int main(int argc, char* argv[])
     }
     close(serv.sock);
     return 0;
+}
 
+void send_msg(char* msg, int len) {
+    pthread_mutex_lock(&g_mutx);
+    for(int i = 0; i < g_clnt_cnt; i++) {
+        write(g_clnt_socks[i], msg, len);
+    }
+    pthread_mutex_unlock(&g_mutx);
+}
 
+void* handle_clnt(void* arg) {
+    int str_len = 0;
+    char msg[BUF_SIZE] = {0};
+    int sock = *((int*)arg);
 
+    while((str_len = read(sock, msg, BUF_SIZE)) != 0)
+        send_msg(msg, str_len);
+
+    pthread_mutex_lock(&g_mutx);
+    for(int i = 0; i < g_clnt_cnt; i++) {
+        if (sock == g_clnt_socks[i]) {
+            while(i++ < g_clnt_cnt - 1) {
+                g_clnt_socks[i] = g_clnt_socks[i + 1];
+            }
+            break;
+        }
+    }
+    g_clnt_cnt--;
+    pthread_mutex_unlock(&g_mutx);
+    close(sock);
+    return NULL;
 }
